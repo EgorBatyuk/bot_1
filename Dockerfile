@@ -4,6 +4,6 @@ WORKDIR /app
 
 COPY . .
 
-RUN pip install aiogram
+RUN pip3 install aiogram
 
-CMD [ "python", "./main.py" ]
+CMD [ "python3", "./main.py" ]
