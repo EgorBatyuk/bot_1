@@ -4,6 +4,13 @@ from handlers import *
 
 API_TOKEN = '1699414442:AAHrZuZ_4fIr82Vw_aZisINxZjzyslHr2h4'
 
+WEBHOOK_HOST = '192.168.0.14'
+WEBHOOK_PATH = '' #или пустое значение, если он слушает на стартовой странице.
+WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
+
+WEBAPP_HOST = 'localhost'  # or ip
+WEBAPP_PORT = 3001
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 
@@ -11,6 +18,23 @@ logging.basicConfig(level=logging.INFO)
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
 
+
+async def on_startup(dp):
+    await bot.set_webhook(WEBHOOK_URL)
+
+async def on_shutdown(dp):
+    logging.warning('Shutting down..')
+
+    # insert code here to run it before shutdown
+
+    # Remove webhook (not acceptable in some cases)
+    await bot.delete_webhook()
+
+    # Close DB connection (if used)
+    await dp.storage.close()
+    await dp.storage.wait_closed()
+
+    logging.warning('Bye!')
 
 @dp.message_handler(commands=['start', 'help'])
 async def any_msg(message):
@@ -494,4 +518,10 @@ async def with_puree(message: types.Message):
 
 
 if __name__ == '__main__':
-    executor.start_polling(dp, skip_updates=True)
+    executor.start_webhook(dispatcher=dp,
+        webhook_path=WEBHOOK_PATH,
+        on_startup=on_startup,
+        on_shutdown=on_shutdown,
+        skip_updates=True,
+        host=WEBHOOK_HOST,
+        port=WEBAPP_PORT,)

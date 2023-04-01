@@ -1,9 +1,9 @@
 FROM python:3
 
-RUN mkdir -p /usr/scr/app/
-WORKDIR /usr/src/app/
+WORKDIR /app
 
-COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
+
+RUN pip install aiogram
 
 CMD [ "python", "./main.py" ]
